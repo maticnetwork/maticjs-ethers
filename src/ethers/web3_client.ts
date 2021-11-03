@@ -132,4 +132,9 @@ export class EtherWeb3Client extends BaseWeb3Client {
             this.logger
         );
     }
+
+    decodeParameters(hexString, types: any[]) {
+        return utils.defaultAbiCoder.decode(types, hexString) as any;
+    }
+    
 }

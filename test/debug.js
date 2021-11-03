@@ -20,6 +20,7 @@ const execute = async () => {
     const childProvider = new providers.JsonRpcProvider(maticRPC);
 
     const matic = new POSClient({
+        log: true,
         network: 'testnet',
         version: 'mumbai',
         parent: {
