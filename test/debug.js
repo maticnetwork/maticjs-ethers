@@ -54,8 +54,10 @@ const execute = async () => {
     // console.log("txHash", txHash);
     // console.log("receipt", await result.getReceipt());
 
-    // const isCheckpointed = await mumbaiTokenErc20.isWithdrawExited('0xbb9051c6a55ad82122835dd6b656f62f2bf905452e844172f9d8ba6a98137f8c');
-    // console.log("isWithdrawExited", isCheckpointed);
+    const isCheckpointed = await mumbaiTokenErc20.isWithdrawExited(
+        '0xbb9051c6a55ad82122835dd6b656f62f2bf905452e844172f9d8ba6a98137f8c'
+    );
+      console.log("isWithdrawExited", isCheckpointed);
 
     const balanceRoot = await mumbaiTokenErc20.getBalance(from)
     console.log('balanceRoot', balanceRoot);

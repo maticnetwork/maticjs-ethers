@@ -43,7 +43,9 @@ describe('ERC20', () => {
 
     it('isWithdrawExited', async () => {
         const exitTxHash = '0x95844235073da694e311dc90476c861e187c36f86a863a950534c9ac2b7c1a48';
-        const isExited = await erc20Parent.isWithdrawExited('0xd6f7f4c6052611761946519076de28fbd091693af974e7d4abc1b17fd7926fd7');
+        const isExited = await erc20Parent.isWithdrawExited(
+            '0xd6f7f4c6052611761946519076de28fbd091693af974e7d4abc1b17fd7926fd7'
+        );
         expect(isExited).to.be.an('boolean').equal(true);
     })
 

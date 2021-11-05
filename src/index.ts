@@ -4,7 +4,7 @@ import { EtherWeb3Client } from "./ethers";
 
 export class Web3ClientPlugin implements IPlugin {
     setup(matic) {
-        matic.Web3Client = EtherWeb3Client as any;
+        matic.utils.Web3Client = EtherWeb3Client as any;
     }
 }
 
