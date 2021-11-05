@@ -8,4 +8,5 @@ export class Web3ClientPlugin implements IPlugin {
     }
 }
 
+export * from "./ethers";
 export default Web3ClientPlugin;

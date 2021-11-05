@@ -1,6 +1,7 @@
 import { BaseContractMethod, ITransactionConfig, ITransactionWriteResult, Logger } from "@maticnetwork/maticjs";
-import { Contract, PopulatedTransaction } from "ethers";
+import { BigNumber, Contract, ethers, PopulatedTransaction, utils } from "ethers";
 import { doNothing } from "../helpers";
+import { ethReceiptToMaticReceipt } from "../utils";
 
 export class ContractMethod extends BaseContractMethod {
     constructor(logger: Logger, private contract_: Contract, private methodName, private args) {
@@ -11,24 +12,31 @@ export class ContractMethod extends BaseContractMethod {
         return this.contract_.address
     }
 
+    toBigNumber(value) {
+        return value ? BigNumber.from(value) : value;
+    }
+
     private toConfig_(config: ITransactionConfig = {}) {
+        const toBigNumber = this.toBigNumber;
         return {
             to: config.to,
             from: config.from,
-            gasPrice: config.gasPrice as any,
-            gasLimit: config.gasLimit as any,
-            value: config.value as any,
+            gasPrice: toBigNumber(config.gasPrice),
+            gasLimit: toBigNumber(config.gasLimit),
+            value: toBigNumber(config.value),
             nonce: config.nonce,
             // chainId: config.chainId,
             data: config.data,
-            type: config.type as any,
-            maxFeePerGas: config.maxFeePerGas as any,
-            maxPriorityFeePerGas: config.maxPriorityFeePerGas as any
+            type: config.type,
+            maxFeePerGas: toBigNumber(config.maxFeePerGas),
+            maxPriorityFeePerGas: toBigNumber(config.maxPriorityFeePerGas),
+
         } as PopulatedTransaction;
     }
 
     encodeABI() {
-        return this.contract_.interface.functions.encode[this.methodName](...this.args);
+        return this.contract_.interface.encodeFunctionData(this.methodName, this.args)
+        // return this.contract_.interface.functions.encode[this.methodName](...this.args);
     }
 
     estimateGas(config: ITransactionConfig = {}) {
@@ -63,7 +71,9 @@ export class ContractMethod extends BaseContractMethod {
             result.onTransactionHash(response.hash);
             return response.wait();
         }).then(receipt => {
-            result.onReceipt(receipt);
+            result.onReceipt(
+                ethReceiptToMaticReceipt(receipt)
+            );
         }).catch(err => {
             result.onTxError(err);
             result.onReceiptError(err);

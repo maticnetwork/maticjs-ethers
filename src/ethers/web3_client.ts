@@ -2,6 +2,7 @@ import { providers, Wallet, utils, Contract } from "ethers";
 import { EthJsContract } from "./ethjs_contract";
 import { doNothing } from "../helpers";
 import { BaseWeb3Client, IJsonRpcRequestPayload, ITransactionConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
+import { ethReceiptToMaticReceipt } from "../utils";
 
 type ETHER_PROVIDER = providers.JsonRpcProvider;
 type ETHER_SIGNER = providers.JsonRpcSigner;
@@ -110,7 +111,9 @@ export class EtherWeb3Client extends BaseWeb3Client {
             result.onTransactionHash(response.hash);
             return response.wait();
         }).then(receipt => {
-            result.onReceipt(receipt);
+            result.onReceipt(
+                ethReceiptToMaticReceipt(receipt)
+            );
         }).catch(err => {
             console.log("error", err);
             result.onTxError(err);
@@ -136,5 +139,5 @@ export class EtherWeb3Client extends BaseWeb3Client {
     decodeParameters(hexString, types: any[]) {
         return utils.defaultAbiCoder.decode(types, hexString) as any;
     }
-    
+
 }
