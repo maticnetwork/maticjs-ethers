@@ -1,5 +1,5 @@
 import { BaseBigNumber } from "@maticnetwork/maticjs";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 
 export class MaticBigNumber extends BaseBigNumber {
     private bn_: BigNumber;
@@ -18,8 +18,9 @@ export class MaticBigNumber extends BaseBigNumber {
 
     toString(base?) {
         if (base === 16) {
-            const hex = this.bn_.toHexString();
-            return hex.slice(3);
+            let hex = this.bn_.toHexString();
+            hex = utils.hexStripZeros(hex);
+            return hex.slice(2);
         }
         return this.bn_.toString();
     }

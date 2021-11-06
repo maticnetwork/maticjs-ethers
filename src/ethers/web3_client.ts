@@ -1,7 +1,7 @@
 import { providers, Wallet, utils, Contract, ethers, BigNumber } from "ethers";
 import { EthJsContract } from "./ethjs_contract";
 import { doNothing } from "../helpers";
-import { BaseWeb3Client, IBlockWithTransaction, IJsonRpcRequestPayload, ITransactionRequestConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
+import { BaseWeb3Client, IBlockWithTransaction, IJsonRpcRequestPayload, IJsonRpcResponse, ITransactionRequestConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
 import { ethBlockToMaticBlock, ethReceiptToMaticReceipt, ethTxToMaticTx } from "../utils";
 
 type ETHER_PROVIDER = providers.JsonRpcProvider;
@@ -42,6 +42,8 @@ export class EtherWeb3Client extends BaseWeb3Client {
             const block = provider.formatter.blockWithTransactions(rawBlock);
             block['stateRoot'] = provider.formatter.hash(rawBlock.stateRoot);
             block['transactionsRoot'] = provider.formatter.hash(rawBlock.transactionsRoot);
+            block['receiptsRoot'] = provider.formatter.hash(rawBlock.receiptsRoot);
+
             block.transactions = block.transactions.map(tx => {
                 return ethTxToMaticTx(tx as any);
             }) as any;
@@ -129,7 +131,11 @@ export class EtherWeb3Client extends BaseWeb3Client {
     }
 
     sendRPCRequest(request: IJsonRpcRequestPayload) {
-        return this.provider.send(request.method, request.params);
+        return this.provider.send(request.method, request.params).then(result => {
+            return {
+                result: result
+            } as IJsonRpcResponse
+        })
     }
 
     private toEthTxConfig_(config: ITransactionRequestConfig) {

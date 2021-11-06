@@ -24,4 +24,16 @@ describe('Hex test', () => {
         expect(value).equal('0xa');
     })
 
+    it('amount is 593390000', () => {
+        const amount = 593390000;
+        const value = Converter.toHex(
+            new utils.BN(amount)
+        );
+
+        expect(value).equal('0x235e69b0');
+        expect('235e69b0').equal(
+            new utils.BN(amount).toString(16)
+        );
+    })
+
 });
