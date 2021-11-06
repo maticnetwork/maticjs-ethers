@@ -1,4 +1,4 @@
-const { use, POSClient } = require("@maticnetwork/maticjs");
+const { use, POSClient, Converter, utils } = require("@maticnetwork/maticjs");
 const { Web3ClientPlugin } = require("@maticnetwork/maticjs-ethers");
 const { user1, rpc, pos } = require("./config");
 const { providers, Wallet } = require("ethers");
@@ -10,6 +10,10 @@ use(Web3ClientPlugin);
 const from = process.env.FROM || user1.address;
 
 const execute = async () => {
+    
+
+    return console.log(Converter.toHex('10'), new utils.BN('10').toString(16))
+
     const privateKey = process.env.PRIVATE_KEY || user1.privateKey;
     const mumbaiERC20 = pos.child.erc20;
     const goerliERC20 = pos.parent.erc20;
@@ -39,17 +43,17 @@ const execute = async () => {
 
     await matic.init();
 
-//   return console.log(await matic.isDeposited('0xc67599f5c967f2040786d5924ec55d37bf943c009bdd23f3b50e5ae66efde258'));
+    //   return console.log(await matic.isDeposited('0xc67599f5c967f2040786d5924ec55d37bf943c009bdd23f3b50e5ae66efde258'));
 
 
     const rootTokenErc20 = matic.erc20(goerliERC20, true);
     const mumbaiTokenErc20 = matic.erc20(mumbaiERC20);
 
-    // const result = await rootTokenErc20.mapChild();
+    const result = await rootTokenErc20.approveMax();
     // const result = await mumbaiTokenErc20.withdrawStart(10);
-    //  const txHash = await result.getTransactionHash();
-    // console.log("txHash", txHash);
-    // console.log("receipt", await result.getReceipt());
+    const txHash = await result.getTransactionHash();
+    console.log("txHash", txHash);
+    console.log("receipt", await result.getReceipt());
 
     // const result = await rootTokenErc20.withdrawExit('0xbb9051c6a55ad82122835dd6b656f62f2bf905452e844172f9d8ba6a98137f8c');
     // // console.log("result", result, typeof result);
@@ -60,7 +64,7 @@ const execute = async () => {
     const isCheckpointed = await mumbaiTokenErc20.isWithdrawExited(
         '0xbb9051c6a55ad82122835dd6b656f62f2bf905452e844172f9d8ba6a98137f8c'
     );
-      console.log("isWithdrawExited", isCheckpointed);
+    console.log("isWithdrawExited", isCheckpointed);
 
     const balanceRoot = await mumbaiTokenErc20.getBalance(from)
     console.log('balanceRoot', balanceRoot);

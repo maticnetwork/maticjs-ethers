@@ -1,5 +1,5 @@
-import { BaseContractMethod, ITransactionConfig, ITransactionWriteResult, Logger } from "@maticnetwork/maticjs";
-import { BigNumber, Contract, ethers, PopulatedTransaction, utils } from "ethers";
+import { BaseContractMethod, ITransactionRequestConfig, ITransactionWriteResult, Logger } from "@maticnetwork/maticjs";
+import { BigNumber, Contract, PopulatedTransaction } from "ethers";
 import { doNothing } from "../helpers";
 import { ethReceiptToMaticReceipt } from "../utils";
 
@@ -16,7 +16,7 @@ export class ContractMethod extends BaseContractMethod {
         return value ? BigNumber.from(value) : value;
     }
 
-    private toConfig_(config: ITransactionConfig = {}) {
+    private toConfig_(config: ITransactionRequestConfig = {}) {
         const toBigNumber = this.toBigNumber;
         return {
             to: config.to,
@@ -39,13 +39,13 @@ export class ContractMethod extends BaseContractMethod {
         // return this.contract_.interface.functions.encode[this.methodName](...this.args);
     }
 
-    estimateGas(config: ITransactionConfig = {}) {
+    estimateGas(config: ITransactionRequestConfig = {}) {
         return this.contract_.estimateGas[this.methodName](...this.args, this.toConfig_(config)).then(result => {
             return result.toNumber();
         });
     }
 
-    read(config: ITransactionConfig) {
+    read(config: ITransactionRequestConfig) {
         this.logger.log("sending tx with config", config);
         return this.getMethod_(config).then(result => {
             if (result._isBigNumber) {
@@ -55,11 +55,11 @@ export class ContractMethod extends BaseContractMethod {
         });
     }
 
-    private getMethod_(config: ITransactionConfig = {}) {
+    private getMethod_(config: ITransactionRequestConfig = {}) {
         return this.contract_[this.methodName](...this.args, this.toConfig_(config));
     }
 
-    write(config: ITransactionConfig) {
+    write(config: ITransactionRequestConfig) {
         const result = {
             onTransactionHash: (doNothing as any),
             onReceipt: doNothing,

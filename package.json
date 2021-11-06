@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/maticnetwork/maticjs-ethers#readme",
   "dependencies": {
-    "ethereumjs-block": "^2.2.2",
     "ethers": "^5.5.1"
   },
   "devDependencies": {

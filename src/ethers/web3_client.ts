@@ -1,7 +1,7 @@
 import { providers, Wallet, utils, Contract, ethers, BigNumber } from "ethers";
 import { EthJsContract } from "./ethjs_contract";
 import { doNothing } from "../helpers";
-import { BaseWeb3Client, IBlockWithTransaction, IJsonRpcRequestPayload, ITransactionConfig, ITransactionData, ITransactionWriteResult } from "@maticnetwork/maticjs";
+import { BaseWeb3Client, IBlockWithTransaction, IJsonRpcRequestPayload, ITransactionRequestConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
 import { ethBlockToMaticBlock, ethReceiptToMaticReceipt, ethTxToMaticTx } from "../utils";
 
 type ETHER_PROVIDER = providers.JsonRpcProvider;
@@ -125,7 +125,6 @@ export class EtherWeb3Client extends BaseWeb3Client {
         const types = value.map(val => {
             return this.toHex(val, true);
         })
-        console.log("types", types);
         return utils.solidityKeccak256(types, value);
     }
 
@@ -133,7 +132,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
         return this.provider.send(request.method, request.params);
     }
 
-    private toEthTxConfig_(config: ITransactionConfig) {
+    private toEthTxConfig_(config: ITransactionRequestConfig) {
         return {
             chainId: config.chainId,
             data: config.data,
@@ -146,7 +145,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
         };
     }
 
-    write(config: ITransactionConfig) {
+    write(config: ITransactionRequestConfig) {
         const result = {
             onTransactionHash: (doNothing as any),
             onReceipt: doNothing,
@@ -170,7 +169,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
         return result;
     }
 
-    read(config: ITransactionConfig) {
+    read(config: ITransactionRequestConfig) {
         return this.signer.call(
             this.toEthTxConfig_(config)
         );
