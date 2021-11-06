@@ -39,6 +39,9 @@ const execute = async () => {
 
     await matic.init();
 
+//   return console.log(await matic.isDeposited('0xc67599f5c967f2040786d5924ec55d37bf943c009bdd23f3b50e5ae66efde258'));
+
+
     const rootTokenErc20 = matic.erc20(goerliERC20, true);
     const mumbaiTokenErc20 = matic.erc20(mumbaiERC20);
 

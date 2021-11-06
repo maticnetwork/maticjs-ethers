@@ -1,8 +1,8 @@
-import { providers, Wallet, utils, Contract } from "ethers";
+import { providers, Wallet, utils, Contract, ethers, BigNumber } from "ethers";
 import { EthJsContract } from "./ethjs_contract";
 import { doNothing } from "../helpers";
-import { BaseWeb3Client, IJsonRpcRequestPayload, ITransactionConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
-import { ethReceiptToMaticReceipt } from "../utils";
+import { BaseWeb3Client, IBlockWithTransaction, IJsonRpcRequestPayload, ITransactionConfig, ITransactionData, ITransactionWriteResult } from "@maticnetwork/maticjs";
+import { ethBlockToMaticBlock, ethReceiptToMaticReceipt, ethTxToMaticTx } from "../utils";
 
 type ETHER_PROVIDER = providers.JsonRpcProvider;
 type ETHER_SIGNER = providers.JsonRpcSigner;
@@ -33,8 +33,20 @@ export class EtherWeb3Client extends BaseWeb3Client {
     }
 
     getBlockWithTransaction(blockHashOrBlockNumber) {
-        return this.provider.getBlockWithTransactions(blockHashOrBlockNumber).then(block => {
-            return block as any;
+        // return this.provider.getBlockWithTransactions(blockHashOrBlockNumber)
+        const provider = this.provider;
+        return provider.send(
+            'eth_getBlockByNumber',
+            [utils.hexValue(blockHashOrBlockNumber), true]
+        ).then(rawBlock => {
+            const block = provider.formatter.blockWithTransactions(rawBlock);
+            block['stateRoot'] = provider.formatter.hash(rawBlock.stateRoot);
+            block['transactionsRoot'] = provider.formatter.hash(rawBlock.transactionsRoot);
+            block.transactions = block.transactions.map(tx => {
+                return ethTxToMaticTx(tx as any);
+            }) as any;
+
+            return ethBlockToMaticBlock(block) as any;
         });
     }
 
@@ -45,7 +57,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
     getTransaction(transactionHash: string) {
         return this.provider.getTransaction(transactionHash).then(result => {
-            return result as any;
+            return ethTxToMaticTx(result);
         });
     }
 
@@ -55,7 +67,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
     getTransactionReceipt(transactionHash: string) {
         return this.provider.getTransactionReceipt(transactionHash).then(result => {
-            return result as any;
+            return ethReceiptToMaticReceipt(result);
         });
     }
 
@@ -67,7 +79,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
     estimateGas(config) {
         return this.provider.estimateGas(
-            this.toTransactionRequest_(config)
+            this.toEthTxConfig_(config)
         ).then(value => {
             return value.toNumber();
         });
@@ -77,15 +89,51 @@ export class EtherWeb3Client extends BaseWeb3Client {
         return utils.defaultAbiCoder.encode(types, params);
     }
 
+    toHex(value, returnType) {
+
+        if (utils.isAddress(value)) {
+            return returnType ? 'address' : '0x' + value.toLowerCase().replace(/^0x/i, '');
+        }
+
+        if (typeof value === 'boolean') {
+            return returnType ? 'bool' : value ? '0x01' : '0x00';
+        }
+
+        if (Buffer.isBuffer(value)) {
+            return '0x' + value.toString('hex');
+        }
+
+        if (typeof value === 'object' && !!value && !BigNumber.isBigNumber(value)) {
+            return returnType ? 'string' : utils.hexlify(JSON.stringify(value));
+        }
+
+        // if its a negative number, pass it through numberToHex
+        if (typeof value === 'string') {
+            if (value.indexOf('-0x') === 0 || value.indexOf('-0X') === 0) {
+                return returnType ? 'int256' : utils.hexlify(value);
+            } else if (value.indexOf('0x') === 0 || value.indexOf('0X') === 0) {
+                return returnType ? 'bytes' : value;
+            } else if (!isFinite(value as any)) {
+                return returnType ? 'string' : utils.hexlify(value);
+            }
+        }
+
+        return returnType ? (value < 0 ? 'int256' : 'uint256') : utils.hexlify(value);
+    };
+
     etheriumSha3(...value) {
-        return utils.keccak256(value);
+        const types = value.map(val => {
+            return this.toHex(val, true);
+        })
+        console.log("types", types);
+        return utils.solidityKeccak256(types, value);
     }
 
     sendRPCRequest(request: IJsonRpcRequestPayload) {
         return this.provider.send(request.method, request.params);
     }
 
-    private toTransactionRequest_(config: ITransactionConfig) {
+    private toEthTxConfig_(config: ITransactionConfig) {
         return {
             chainId: config.chainId,
             data: config.data,
@@ -106,7 +154,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
             onTxError: doNothing
         } as ITransactionWriteResult;
         this.signer.sendTransaction(
-            this.toTransactionRequest_(config)
+            this.toEthTxConfig_(config)
         ).then(response => {
             result.onTransactionHash(response.hash);
             return response.wait();
@@ -124,7 +172,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
     read(config: ITransactionConfig) {
         return this.signer.call(
-            this.toTransactionRequest_(config)
+            this.toEthTxConfig_(config)
         );
     }
 
