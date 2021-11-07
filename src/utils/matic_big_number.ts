@@ -20,7 +20,7 @@ export class MaticBigNumber extends BaseBigNumber {
         if (base === 16) {
             let hex = this.bn_.toHexString();
             hex = utils.hexStripZeros(hex);
-            return hex.slice(2);
+            return hex.indexOf('0x') === 0 ? hex.slice(2) : hex;
         }
         return this.bn_.toString();
     }

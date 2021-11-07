@@ -22,7 +22,7 @@ const parentPrivder = new providers.JsonRpcProvider(rpc.parent);
 const childProvider = new providers.JsonRpcProvider(rpc.child);
 
 export const posClient = new POSClient({
-    log: true,
+    // log: true,
     network: 'testnet',
     version: 'mumbai',
     parent: {
@@ -40,7 +40,7 @@ export const posClient = new POSClient({
 });
 
 export const posClientForTo = new POSClient({
-    log: true,
+    // log: true,
     network: 'testnet',
     version: 'mumbai',
     parent: {
