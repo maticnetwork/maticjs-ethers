@@ -268,24 +268,28 @@ describe('ERC20', () => {
     if (process.env.NODE_ENV !== 'test_all') return;
 
     it('approve', async () => {
-        const result = await erc20Parent.approve('10');
+        const result = await erc20Parent.approve('10', {
+            type: 0
+        });
 
         const txHash = await result.getTransactionHash();
         expect(txHash).to.be.an('string');
 
         const txReceipt = await result.getReceipt();
         console.log("txReceipt", txReceipt);
-        expect(txReceipt.type).equal('0x0');
+        expect(txReceipt.type).equal(0);
     });
 
     it('deposit', async () => {
-        const result = await erc20Parent.deposit('10', from);
+        const result = await erc20Parent.deposit('10', from, {
+            maxPriorityFeePerGas: 2000000000,
+        });
 
         const txHash = await result.getTransactionHash();
         expect(txHash).to.be.an('string');
 
         const txReceipt = await result.getReceipt();
-        expect(txReceipt).to.be.an('object');
+        expect(txReceipt.type).equal(2);
     });
 
 });

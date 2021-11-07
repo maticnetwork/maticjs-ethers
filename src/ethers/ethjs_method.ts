@@ -62,21 +62,21 @@ export class ContractMethod extends BaseContractMethod {
     write(config: ITransactionRequestConfig) {
         const result = {
             onTransactionHash: (doNothing as any),
-            onReceipt: doNothing,
             onReceiptError: doNothing,
-            onTxError: doNothing
+            onTxError: doNothing,
+            getReceipt: doNothing as any
+
         } as ITransactionWriteResult;
         this.logger.log("sending tx with config", config);
         this.getMethod_(config).then(response => {
             result.onTransactionHash(response.hash);
-            return response.wait();
-        }).then(receipt => {
-            result.onReceipt(
-                ethReceiptToMaticReceipt(receipt)
-            );
+            result.getReceipt = () => {
+                return response.wait().then(receipt => {
+                    return ethReceiptToMaticReceipt(receipt)
+                })
+            }
         }).catch(err => {
             result.onTxError(err);
-            result.onReceiptError(err);
         });
         return result;
     }
