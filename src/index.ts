@@ -1,11 +1,18 @@
-import { ITransactionConfig, IPlugin, ITransactionResult } from "@maticnetwork/maticjs";
+import { ITransactionRequestConfig, IPlugin, ITransactionResult, Converter, utils } from "@maticnetwork/maticjs";
+import { BigNumber, ethers } from "ethers";
 import { EtherWeb3Client } from "./ethers";
+import { MaticBigNumber } from "./utils";
 
 
 export class Web3ClientPlugin implements IPlugin {
     setup(matic) {
-        matic.Web3Client = EtherWeb3Client as any;
+        matic.utils.Web3Client = EtherWeb3Client as any;
+        matic.utils.BN = MaticBigNumber;
+        matic.utils.isBN = (value) => {
+            return BigNumber.isBigNumber(value);
+        }
     }
 }
 
+export * from "./ethers";
 export default Web3ClientPlugin;
