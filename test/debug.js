@@ -49,18 +49,23 @@ const execute = async () => {
     const rootTokenErc20 = matic.erc20(goerliERC20, true);
     const mumbaiTokenErc20 = matic.erc20(mumbaiERC20);
 
-    // const result = await rootTokenErc20.approveMax();
-    // // const result = await mumbaiTokenErc20.withdrawStart(10);
-    // const txHash = await result.getTransactionHash();
-    // console.log("txHash", txHash);
-    // console.log("receipt", await result.getReceipt());
+    const result = await rootTokenErc20.approveMax({
+        maxPriorityFeePerGas: 2000000000,
+
+    });
+    // const result = await mumbaiTokenErc20.withdrawStart(10);
+    const txHash = await result.getTransactionHash();
+    console.log("txHash", txHash);
+    console.log("receipt", await result.getReceipt());
+
+    return;
 
     const payload = await matic.exitUtil.buildPayloadForExit(
         '0x1c20c41b9d97d1026aa456a21f13725df63edec1b1f43aacb180ebcc6340a2d3',
         '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
         false
     )
-  return  console.log("payload",  "length", payload.length);
+    return console.log("payload", "length", payload.length);
     // const txHash = await result.getTransactionHash();
     // console.log("txHash", txHash);
     // console.log("receipt", await result.getReceipt());
