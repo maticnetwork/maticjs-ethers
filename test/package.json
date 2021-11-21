@@ -35,5 +35,7 @@
     "puppeteer": "^5.5.0",
     "webpack-cli": "^4.2.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@maticnetwork/maticjs": "^3.0.0-beta.16"
+  }
 }
