@@ -152,26 +152,28 @@ export class EtherWeb3Client extends BaseWeb3Client {
     }
 
     write(config: ITransactionRequestConfig) {
+        let onTransactionHash = doNothing as any;
+        let onTransactionError = doNothing as any;
+
         const result = {
-            onTransactionHash: (doNothing as any),
-            onReceipt: doNothing,
-            onReceiptError: doNothing,
-            onTxError: doNothing
+            getTransactionHash() {
+                return new Promise(res => {
+                    onTransactionHash = res;
+                });
+            }
         } as ITransactionWriteResult;
         this.signer.sendTransaction(
             this.toEthTxConfig_(config)
         ).then(response => {
-            result.onTransactionHash(response.hash);
-            return response.wait();
-        }).then(receipt => {
-            result.onReceipt(
-                ethReceiptToMaticReceipt(receipt)
-            );
+            onTransactionHash(response.hash);
+            result.getReceipt = () => {
+                return response.wait().then(receipt => {
+                    return ethReceiptToMaticReceipt(receipt)
+                })
+            }
         }).catch(err => {
-            console.log("error", err);
-            result.onTxError(err);
-            result.onReceiptError(err);
-        });
+            onTransactionError = err;
+        })
         return result;
     }
 

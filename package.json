@@ -32,10 +32,10 @@
     "ethers": "^5.5.1"
   },
   "peerDependencies": {
-    "@maticnetwork/maticjs": "^3.0.0-beta.15"
+    "@maticnetwork/maticjs": "^3.0.0-beta.16"
   },
   "devDependencies": {
-    "@maticnetwork/maticjs": "^3.0.0-beta.15",
+    "@maticnetwork/maticjs": "^3.0.0-beta.16",
     "copy-webpack-plugin": "^6.1.1",
     "cross-env": "^7.0.3",
     "ts-loader": "^7.0.1",

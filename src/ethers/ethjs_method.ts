@@ -1,7 +1,6 @@
 import { BaseContractMethod, ITransactionRequestConfig, ITransactionWriteResult, Logger } from "@maticnetwork/maticjs";
 import { BigNumber, Contract, PopulatedTransaction } from "ethers";
-import { doNothing } from "../helpers";
-import { ethReceiptToMaticReceipt } from "../utils";
+import { TransactionWriteResult } from "../helpers";
 
 export class ContractMethod extends BaseContractMethod {
     constructor(logger: Logger, private contract_: Contract, private methodName, private args) {
@@ -60,24 +59,7 @@ export class ContractMethod extends BaseContractMethod {
     }
 
     write(config: ITransactionRequestConfig) {
-        const result = {
-            onTransactionHash: (doNothing as any),
-            onReceiptError: doNothing,
-            onTxError: doNothing,
-            getReceipt: doNothing as any
-
-        } as ITransactionWriteResult;
         this.logger.log("sending tx with config", config);
-        this.getMethod_(config).then(response => {
-            result.onTransactionHash(response.hash);
-            result.getReceipt = () => {
-                return response.wait().then(receipt => {
-                    return ethReceiptToMaticReceipt(receipt)
-                })
-            }
-        }).catch(err => {
-            result.onTxError(err);
-        });
-        return result;
+        return new TransactionWriteResult(this.getMethod_(config));
     }
 }
