@@ -1,6 +1,13 @@
 const { use, POSClient } = require("@maticnetwork/maticjs");
 const { Web3ClientPlugin } = require("@maticnetwork/maticjs-ethers");
 const { providers, Wallet } = require("ethers");
+
+const dotenv = require('dotenv');
+const path = require('path');
+const env = dotenv.config({
+    path: path.join(__dirname, '.env')
+});
+
 const { user1, rpc, pos } = require("./config");
 
 use(Web3ClientPlugin);
