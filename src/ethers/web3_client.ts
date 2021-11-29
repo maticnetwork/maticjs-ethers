@@ -121,12 +121,12 @@ export class EtherWeb3Client extends BaseWeb3Client {
         }
 
         return returnType ? (value < 0 ? 'int256' : 'uint256') : utils.hexlify(value);
-    };
+    }
 
     etheriumSha3(...value) {
         const types = value.map(val => {
             return this.toHex(val, true);
-        })
+        });
         return utils.solidityKeccak256(types, value);
     }
 
@@ -134,8 +134,8 @@ export class EtherWeb3Client extends BaseWeb3Client {
         return this.provider.send(request.method, request.params).then(result => {
             return {
                 result: result
-            } as IJsonRpcResponse
-        })
+            } as IJsonRpcResponse;
+        });
     }
 
     private toEthTxConfig_(config: ITransactionRequestConfig) {
@@ -168,12 +168,12 @@ export class EtherWeb3Client extends BaseWeb3Client {
             onTransactionHash(response.hash);
             result.getReceipt = () => {
                 return response.wait().then(receipt => {
-                    return ethReceiptToMaticReceipt(receipt)
-                })
-            }
+                    return ethReceiptToMaticReceipt(receipt);
+                });
+            };
         }).catch(err => {
             onTransactionError = err;
-        })
+        });
         return result;
     }
 

@@ -10,4 +10,4 @@ export const ethTxToMaticTx = (tx: providers.TransactionResponse) => {
     maticTx.transactionHash = tx.hash;
 
     return maticTx;
-}
+};

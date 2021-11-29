@@ -15,8 +15,8 @@ export class TransactionWriteResult implements ITransactionWriteResult {
             this.onTransactionReceipt = res;
             this.onTransactionError = rej;
         }).then(receipt => {
-            return ethReceiptToMaticReceipt(receipt)
-        })
+            return ethReceiptToMaticReceipt(receipt);
+        });
     }
 
     constructor(private promise: Promise<providers.TransactionResponse>) {
@@ -26,12 +26,12 @@ export class TransactionWriteResult implements ITransactionWriteResult {
                 if (this.onTransactionReceipt) {
                     response.wait().then(receipt => {
                         this.onTransactionReceipt(receipt);
-                    })
+                    });
                 }
             }, 0);
         }).catch(err => {
             this.onTransactionError(err);
-        })
+        });
     }
 
     getTransactionHash() {

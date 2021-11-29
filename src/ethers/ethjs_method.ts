@@ -8,7 +8,7 @@ export class ContractMethod extends BaseContractMethod {
     }
 
     get address() {
-        return this.contract_.address
+        return this.contract_.address;
     }
 
     toBigNumber(value) {
@@ -34,7 +34,9 @@ export class ContractMethod extends BaseContractMethod {
     }
 
     encodeABI() {
-        return this.contract_.interface.encodeFunctionData(this.methodName, this.args)
+        return this.contract_.interface.encodeFunctionData(
+            this.methodName, this.args
+        );
         // return this.contract_.interface.functions.encode[this.methodName](...this.args);
     }
 

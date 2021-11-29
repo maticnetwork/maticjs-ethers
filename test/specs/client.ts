@@ -1,5 +1,4 @@
 import { POSClient } from "@maticnetwork/maticjs";
-import { providers, Wallet } from "ethers";
 import { user1, rpc, pos, user2 } from "../config";
 
 export const privateKey = user1.privateKey;
@@ -18,41 +17,6 @@ export const erc721 = {
     child: pos.child.erc721
 }
 
-const parentPrivder = new providers.JsonRpcProvider(rpc.parent);
-const childProvider = new providers.JsonRpcProvider(rpc.child);
 
-export const posClient = new POSClient({
-    // log: true,
-    network: 'testnet',
-    version: 'mumbai',
-    parent: {
-        provider: new Wallet(privateKey, parentPrivder),
-        defaultConfig: {
-            from
-        }
-    },
-    child: {
-        provider: new Wallet(privateKey, childProvider),
-        defaultConfig: {
-            from
-        }
-    }
-});
-
-export const posClientForTo = new POSClient({
-    // log: true,
-    network: 'testnet',
-    version: 'mumbai',
-    parent: {
-        provider: new Wallet(toPrivateKey, parentPrivder),
-        defaultConfig: {
-            from: to
-        }
-    },
-    child: {
-        provider: new Wallet(toPrivateKey, childProvider),
-        defaultConfig: {
-            from: to
-        }
-    }
-});
+export const posClient = new POSClient();
+export const posClientForTo = new POSClient();

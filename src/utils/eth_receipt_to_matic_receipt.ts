@@ -9,4 +9,4 @@ export const ethReceiptToMaticReceipt = (receipt: providers.TransactionReceipt) 
     maticReceipt.cumulativeGasUsed = receipt.cumulativeGasUsed.toNumber();
 
     return maticReceipt;
-}
+};

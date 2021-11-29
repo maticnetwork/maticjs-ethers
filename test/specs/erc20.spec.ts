@@ -14,7 +14,6 @@ describe('ERC20', () => {
 
     before(() => {
         return Promise.all([
-            posClient.init(),
             abiManager.init()
         ]);
     });
@@ -257,7 +256,6 @@ describe('ERC20', () => {
 
 
         //transfer money back to user
-        await posClientForTo.init();
         const erc20ChildToken = posClientForTo.erc20(erc20.child);
 
         result = await erc20ChildToken.transfer(amount, to);
