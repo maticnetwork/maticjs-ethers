@@ -36,6 +36,6 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
-    "@maticnetwork/maticjs": "^3.0.0-beta.16"
+    "@maticnetwork/maticjs": "^3.0.0"
   }
 }
