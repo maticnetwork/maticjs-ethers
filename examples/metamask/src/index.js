@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import { pos } from "../../config";
 
 use(Web3ClientPlugin);
+const posClient = new POSClient();
 
 window.onload = () => {
     document.querySelector('#btnConnect').addEventListener('click', async () => {
@@ -24,7 +25,7 @@ window.onload = () => {
         const isParent = chainId === 5;
 
 
-        let posClient = new POSClient({
+        await posClient.init({
             log: true,
             network: "testnet",
             version: 'mumbai',
@@ -41,9 +42,6 @@ window.onload = () => {
                 }
             }
         });
-
-
-        await posClient.init();
 
         const tokenAddress = isParent ? pos.parent.erc20 : pos.child.erc20;
 

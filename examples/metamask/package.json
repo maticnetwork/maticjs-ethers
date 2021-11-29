@@ -20,7 +20,5 @@
     "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.4.1"
   },
-  "dependencies": {
-    "web3modal": "^1.9.4"
-  }
+  "dependencies": {}
 }

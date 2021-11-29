@@ -20,7 +20,8 @@ const execute = async () => {
     const parentPrivder = new providers.JsonRpcProvider(rpc.root);
     const childProvider = new providers.JsonRpcProvider(rpc.child);
 
-    const matic = new POSClient({
+    const matic = new POSClient();
+    await matic.init({
         // log: true,
         network: 'testnet',
         version: 'mumbai',
@@ -37,8 +38,6 @@ const execute = async () => {
             }
         }
     });
-
-    await matic.init();
 
     const rootTokenErc20 = matic.erc20(pos.parent.erc20, true);
 

@@ -5,3 +5,4 @@ webpack
 *.tgz
 test
 .env
+examples
