@@ -1,7 +1,7 @@
 import { providers, Wallet, utils, Contract, ethers, BigNumber } from "ethers";
 import { EthJsContract } from "./ethjs_contract";
 import { doNothing } from "../helpers";
-import { BaseWeb3Client, IBlockWithTransaction, IJsonRpcRequestPayload, IJsonRpcResponse, ITransactionRequestConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
+import { BaseWeb3Client, IBlockWithTransaction, IError, IJsonRpcRequestPayload, IJsonRpcResponse, ITransactionRequestConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
 import { ethBlockToMaticBlock, ethReceiptToMaticReceipt, ethTxToMaticTx } from "../utils";
 
 type ETHER_PROVIDER = providers.JsonRpcProvider;
@@ -57,8 +57,19 @@ export class EtherWeb3Client extends BaseWeb3Client {
         return this.signer.getChainId();
     }
 
+    private ensureTransactionNotNull_(data) {
+        if (!data) {
+            throw {
+                type: 'invalid_transaction' as any,
+                message: 'Could not retrieve transaction. Either it is invalid or might be in archive node.'
+            } as IError;
+        }
+    }
+
     getTransaction(transactionHash: string) {
         return this.provider.getTransaction(transactionHash).then(result => {
+            this.ensureTransactionNotNull_(result);
+
             return ethTxToMaticTx(result);
         });
     }
@@ -69,6 +80,8 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
     getTransactionReceipt(transactionHash: string) {
         return this.provider.getTransactionReceipt(transactionHash).then(result => {
+            this.ensureTransactionNotNull_(result);
+            
             return ethReceiptToMaticReceipt(result);
         });
     }

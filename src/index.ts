@@ -10,9 +10,11 @@ export class Web3ClientPlugin implements IPlugin {
         matic.utils.BN = MaticBigNumber;
         matic.utils.isBN = (value) => {
             return BigNumber.isBigNumber(value);
-        }
+        };
     }
 }
 
 export * from "./ethers";
+
+/* tslint:disable-next-line */
 export default Web3ClientPlugin;

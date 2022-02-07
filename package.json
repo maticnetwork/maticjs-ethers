@@ -1,6 +1,6 @@
 {
   "name": "@maticnetwork/maticjs-ethers",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ethers plugin for matic.js",
   "main": "dist/npm.export.js",
   "types": "dist/ts/index.d.ts",
@@ -35,7 +35,7 @@
     "@maticnetwork/maticjs": "^3.0.0"
   },
   "devDependencies": {
-    "@maticnetwork/maticjs": "^3.0.0",
+    "@maticnetwork/maticjs": "^3.2.2",
     "copy-webpack-plugin": "^6.1.1",
     "cross-env": "^7.0.3",
     "ts-loader": "^7.0.1",
