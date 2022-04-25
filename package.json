@@ -6,6 +6,7 @@
   "types": "dist/ts/index.d.ts",
   "scripts": {
     "build": "npm run build:dev",
+    "build:test": "npm run build:pack && npm run test",
     "build:link": "npm run build && npm link",
     "build:webpack": "npm run lint && webpack --config webpack/webpack.node.config.js",
     "build:pack": "npm run build:dev && npm pack",
@@ -16,7 +17,7 @@
     "lint": "tslint src/**/*.ts",
     "lint:fix": "tslint src/**/*.ts --fix",
     "debug": "npm run build:pack && cd test && npm run install:lib:debug",
-    "test": "npm run build:pack && cd test && npm run install:lib:test"
+    "test": "cd test && npm run install:lib:test"
   },
   "repository": {
     "type": "git",
@@ -32,10 +33,10 @@
     "ethers": "^5.5.1"
   },
   "peerDependencies": {
-    "@maticnetwork/maticjs": "^3.0.0"
+    "@maticnetwork/maticjs": "^3.2.5"
   },
   "devDependencies": {
-    "@maticnetwork/maticjs": "^3.2.2",
+    "@maticnetwork/maticjs": "^3.2.5",
     "copy-webpack-plugin": "^6.1.1",
     "cross-env": "^7.0.3",
     "ts-loader": "^7.0.1",
