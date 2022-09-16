@@ -15,7 +15,7 @@ export class ContractMethod extends BaseContractMethod {
         return value ? BigNumber.from(value) : value;
     }
 
-    private toConfig_(config: ITransactionRequestConfig = {}) {
+    private toConfig_(config: ITransactionRequestConfig = {}, blockTag?: number | string) {
         const toBigNumber = this.toBigNumber;
         return {
             to: config.to,
@@ -29,7 +29,7 @@ export class ContractMethod extends BaseContractMethod {
             type: config.type,
             maxFeePerGas: toBigNumber(config.maxFeePerGas),
             maxPriorityFeePerGas: toBigNumber(config.maxPriorityFeePerGas),
-
+            blockTag: blockTag,
         } as PopulatedTransaction;
     }
 
@@ -46,9 +46,9 @@ export class ContractMethod extends BaseContractMethod {
         });
     }
 
-    read(config: ITransactionRequestConfig) {
-        this.logger.log("sending tx with config", config);
-        return this.getMethod_(config).then(result => {
+    read(config: ITransactionRequestConfig, blockTag?: number | string) {
+        this.logger.log("sending tx with config", config, blockTag);
+        return this.getMethod_(config, blockTag).then(result => {
             if (result._isBigNumber) {
                 result = result.toString();
             }
@@ -56,12 +56,12 @@ export class ContractMethod extends BaseContractMethod {
         });
     }
 
-    private getMethod_(config: ITransactionRequestConfig = {}) {
-        return this.contract_[this.methodName](...this.args, this.toConfig_(config));
+    private getMethod_(config: ITransactionRequestConfig = {}, blockTag) {
+        return this.contract_[this.methodName](...this.args, this.toConfig_(config, blockTag));
     }
 
     write(config: ITransactionRequestConfig) {
         this.logger.log("sending tx with config", config);
-        return new TransactionWriteResult(this.getMethod_(config));
+        return new TransactionWriteResult(this.getMethod_(config, 'latest'));
     }
 }
