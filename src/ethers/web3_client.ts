@@ -8,7 +8,7 @@ type ETHER_PROVIDER = providers.JsonRpcProvider;
 type ETHER_SIGNER = providers.JsonRpcSigner;
 
 export class EtherWeb3Client extends BaseWeb3Client {
-
+    name = 'ETHER';
     provider: ETHER_PROVIDER;
     signer: ETHER_SIGNER;
 
@@ -55,6 +55,18 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
     getChainId() {
         return this.signer.getChainId();
+    }
+
+    getBalance(address) {
+        return this.provider.getBalance(address).then(balance => {
+            return balance.toString();
+        });
+    }
+
+    getAccounts() {
+        return this.signer.getAddress().then(address => {
+            return [address];
+        });
     }
 
     private ensureTransactionNotNull_(data) {
@@ -134,6 +146,22 @@ export class EtherWeb3Client extends BaseWeb3Client {
         }
 
         return returnType ? (value < 0 ? 'int256' : 'uint256') : utils.hexlify(value);
+    }
+
+    hexToNumber(value) {
+        return BigNumber.from(value).toNumber();
+    }
+    
+    hexToNumberString(value) {
+        return BigNumber.from(value).toString();
+    }
+
+    signTypedData(signer, typedData) {
+        const {domain, types, message: value} = typedData;
+        if(types.EIP712Domain) {
+            delete types.EIP712Domain;
+        }
+        return this.signer._signTypedData(domain, types, value);
     }
 
     etheriumSha3(...value) {
