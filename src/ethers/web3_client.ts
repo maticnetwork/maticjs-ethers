@@ -8,7 +8,7 @@ type ETHER_PROVIDER = providers.JsonRpcProvider;
 type ETHER_SIGNER = providers.JsonRpcSigner;
 
 export class EtherWeb3Client extends BaseWeb3Client {
-
+    name = 'ETHER';
     provider: ETHER_PROVIDER;
     signer: ETHER_SIGNER;
 
