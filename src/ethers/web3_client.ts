@@ -17,6 +17,9 @@ export class EtherWeb3Client extends BaseWeb3Client {
         if ((provider as ETHER_PROVIDER)._isProvider) {
             this.provider = provider as ETHER_PROVIDER;
             this.signer = this.provider.getSigner();
+            if (!this.signer || !this.signer._address) {
+                this.signer = (provider as any);
+            }
         }
         else {
             this.signer = (provider as any);
@@ -93,7 +96,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
     getTransactionReceipt(transactionHash: string) {
         return this.provider.getTransactionReceipt(transactionHash).then(result => {
             this.ensureTransactionNotNull_(result);
-            
+
             return ethReceiptToMaticReceipt(result);
         });
     }
@@ -151,14 +154,14 @@ export class EtherWeb3Client extends BaseWeb3Client {
     hexToNumber(value) {
         return BigNumber.from(value).toNumber();
     }
-    
+
     hexToNumberString(value) {
         return BigNumber.from(value).toString();
     }
 
     signTypedData(signer, typedData) {
-        const {domain, types, message: value} = typedData;
-        if(types.EIP712Domain) {
+        const { domain, types, message: value } = typedData;
+        if (types.EIP712Domain) {
             delete types.EIP712Domain;
         }
         return this.signer._signTypedData(domain, types, value);
