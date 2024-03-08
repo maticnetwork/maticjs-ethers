@@ -6,28 +6,27 @@ import { ethBlockToMaticBlock, ethReceiptToMaticReceipt, ethTxToMaticTx } from "
 
 type ETHER_PROVIDER = providers.JsonRpcProvider;
 type ETHER_SIGNER = providers.JsonRpcSigner;
+type WEB3_PROVIDER = providers.Web3Provider;
 
 export class EtherWeb3Client extends BaseWeb3Client {
     name = 'ETHER';
     provider: ETHER_PROVIDER;
     signer: ETHER_SIGNER;
 
-    constructor(provider: ETHER_PROVIDER | Wallet, logger) {
+    constructor(provider: ETHER_PROVIDER | Wallet | WEB3_PROVIDER, logger) {
         super(logger);
-        if ((provider as ETHER_PROVIDER)._isProvider) {
-            this.provider = provider as ETHER_PROVIDER;
-            this.signer = this.provider.getSigner();
-            if (!this.signer || !this.signer._address) {
-                this.signer = (provider as any);
-            }
-        }
-        else {
-            this.signer = (provider as any);
-            this.provider = ((provider as Wallet).provider) as any;
+
+        if (provider instanceof ethers.providers.Web3Provider) {
+            this.provider = provider;
+            this.signer = provider.getSigner();
+        } else if (provider instanceof ethers.providers.JsonRpcProvider) {
+            this.provider = provider;
+            this.signer = provider as any;
+        } else {
+            this.signer = provider as any;
+            this.provider = provider.provider || provider as any;
         }
     }
-
-
 
     getBlock(blockHashOrBlockNumber) {
         return this.provider.getBlock(blockHashOrBlockNumber).then(block => {
@@ -57,7 +56,9 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
 
     getChainId() {
-        return this.signer.getChainId();
+        return this.provider.getNetwork().then(function (res) {
+            return res.chainId;
+        });
     }
 
     getBalance(address) {
