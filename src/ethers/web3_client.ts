@@ -23,7 +23,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
     provider: ETHER_PROVIDER | WEB3_PROVIDER;
     signer: ETHER_SIGNER;
 
-    constructor(provider: ETHER_PROVIDER | Wallet, logger) {
+    constructor(provider: ETHER_PROVIDER | Wallet | WEB3_PROVIDER, logger) {
         super(logger);
 
         if (provider instanceof BrowserProvider) {
@@ -39,8 +39,6 @@ export class EtherWeb3Client extends BaseWeb3Client {
             this.provider = provider.provider || provider as any;
         }
     }
-
-
 
     getBlock(blockHashOrBlockNumber) {
         return this.provider.getBlock(blockHashOrBlockNumber).then(block => {

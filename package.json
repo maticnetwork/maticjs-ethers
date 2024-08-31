@@ -1,6 +1,6 @@
 {
   "name": "@maticnetwork/maticjs-ethers",
-  "version": "1.0.4",
+  "version": "1.2.0",
   "description": "ethers plugin for matic.js",
   "main": "dist/npm.export.js",
   "types": "dist/ts/index.d.ts",
