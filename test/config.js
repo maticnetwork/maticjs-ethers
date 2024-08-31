@@ -1,27 +1,24 @@
-// const dotenv = require('dotenv');
-// const path = require('path');
-// const env = dotenv.config({
-//     path: path.join(__dirname, '.env')
-// });
+const dotenv = require('dotenv');
+const path = require('path');
+const env = dotenv.config({
+    path: path.join(__dirname, '.env')
+});
 module.exports = {
     rpc: {
         parent: process.env.ROOT_RPC,
-        child: process.env.MATIC_RPC || 'https://rpc-mumbai.matic.today',
+        child: process.env.MATIC_RPC || 'https://rpc-amoy.polygon.technology',
     },
     pos: {
         parent: {
-            erc20: '0x3f152b63ec5ca5831061b2dccfb29a874c317502',
-            // erc20: '0x655f2166b0709cd575202630952d71e2bb0d61af',
-            erc721: '0x5a08d01e07714146747950CE07BB0f741445D1b8',
-            erc1155: '0x2e3Ef7931F2d0e4a7da3dea950FF3F19269d9063',
-            chainManagerAddress: '0xBbD7cBFA79faee899Eaf900F13C9065bF03B1A74', // Address of RootChainManager proxy for POS Portal
+            erc20: '0xb480378044d92C96D16589Eb95986df6a97F2cFB',
+            erc721: '0x421DbB7B5dFCb112D7a13944DeFB80b28eC5D22C',
+            erc1155: '0x095DD31b6473c4a32548d2A5B09e0f2F3F30d8F1',
+            chainManagerAddress: '0xb991E39a401136348Dee93C75143B159FabF483f',
         },
         child: {
-            erc721: '0xEC8CB8bBb069470bC358ffB0e3710c64830da383',
-           // erc20: '0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1',
-           erc20: '0xA0D9f8282cD48d22Fd875E43Be32793124f8eD47',
-            weth: '0x714550C2C1Ea08688607D86ed8EeF4f5E4F22323',
-            erc1155: '0xA07e45A987F19E25176c877d98388878622623FA',
+            erc20: '0xf3202E7270a10E599394d8A7dA2F4Fbd475e96bA',
+            erc721: '0x02f83d4110D3595872481f677Ae323D50Aa09209',
+            erc1155: '0x488AfDFef019f511E343becb98B7c24ee02fA639',
         },
     },
     user1: {

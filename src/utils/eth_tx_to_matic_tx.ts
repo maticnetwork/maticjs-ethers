@@ -1,11 +1,12 @@
-import { IBlock, ITransactionData, ITransactionResult } from "@maticnetwork/maticjs";
-import { providers } from "ethers";
+import { ITransactionData } from "@maticnetwork/maticjs";
+import BigNumber from "bignumber.js";
+import { TransactionResponse } from "ethers";
 
-export const ethTxToMaticTx = (tx: providers.TransactionResponse) => {
+export const ethTxToMaticTx = (tx: TransactionResponse) => {
     const maticTx: ITransactionData = tx as any;
     maticTx.gasPrice = tx.gasPrice.toString();
-    maticTx.gas = tx.gasLimit.toNumber();
-    (maticTx as any).gasLimit = tx.gasLimit.toNumber();
+    maticTx.gas = new BigNumber(tx.gasLimit.toString()).toNumber();
+    (maticTx as any).gasLimit = new BigNumber(tx.gasLimit.toString()).toNumber();
     maticTx.value = tx.value.toString();
     maticTx.transactionHash = tx.hash;
 

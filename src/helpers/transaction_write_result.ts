@@ -1,5 +1,5 @@
 import { ITransactionWriteResult } from "@maticnetwork/maticjs";
-import { providers } from "ethers";
+import { TransactionReceipt, TransactionResponse } from "ethers";
 import { ethReceiptToMaticReceipt } from "../utils";
 import { doNothing } from "./do_nothing";
 
@@ -11,7 +11,7 @@ export class TransactionWriteResult implements ITransactionWriteResult {
     onTransactionReceipt: Function;
 
     getReceipt() {
-        return new Promise<providers.TransactionReceipt>((res, rej) => {
+        return new Promise<TransactionReceipt>((res, rej) => {
             this.onTransactionReceipt = res;
             this.onTransactionError = rej;
         }).then(receipt => {
@@ -19,7 +19,7 @@ export class TransactionWriteResult implements ITransactionWriteResult {
         });
     }
 
-    constructor(private promise: Promise<providers.TransactionResponse>) {
+    constructor(private promise: Promise<TransactionResponse>) {
         promise.then(response => {
             this.onTransactionHash(response.hash);
             setTimeout(() => {
