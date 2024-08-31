@@ -1,11 +1,13 @@
 import { IBlock } from "@maticnetwork/maticjs";
-import { providers } from "ethers";
+import { Block } from "ethers";
+import BigNumber from "bignumber.js";
 
-export const ethBlockToMaticBlock = (block: providers.Block) => {
-    block.gasUsed = block.gasUsed.toNumber() as any;
-    block.gasLimit = block.gasLimit.toNumber() as any;
-    if ((block as any).baseFeePerGas) {
-        (block as any).baseFeePerGas = block.baseFeePerGas.toHexString();
+export const ethBlockToMaticBlock = (block: Block) => {
+    const newBlock = block.toJSON();
+    newBlock.gasUsed = new BigNumber(newBlock.gasUsed.toString()).toNumber() as any;
+    newBlock.gasLimit = new BigNumber(newBlock.gasLimit.toString()).toNumber() as any;
+    if ((newBlock as any).baseFeePerGas) {
+        (newBlock as any).baseFeePerGas = new BigNumber(newBlock.baseFeePerGas.toString()).toNumber() as any;
     }
-    return block as any as IBlock;
+    return newBlock as IBlock;
 };

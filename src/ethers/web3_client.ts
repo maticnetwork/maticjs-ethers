@@ -1,29 +1,42 @@
-import { providers, Wallet, utils, Contract, ethers, BigNumber } from "ethers";
+import {
+    Wallet, Contract, ethers,
+    JsonRpcProvider,
+    JsonRpcSigner,
+    BrowserProvider,
+    AbiCoder
+} from "ethers";
+import BigNumber from "bignumber.js";
 import { EthJsContract } from "./ethjs_contract";
 import { doNothing } from "../helpers";
-import { BaseWeb3Client, IBlockWithTransaction, IError, IJsonRpcRequestPayload, IJsonRpcResponse, ITransactionRequestConfig, ITransactionWriteResult } from "@maticnetwork/maticjs";
+import {
+    BaseWeb3Client, IError, IJsonRpcRequestPayload, IJsonRpcResponse,
+    ITransactionRequestConfig, ITransactionWriteResult
+} from "@maticnetwork/maticjs";
 import { ethBlockToMaticBlock, ethReceiptToMaticReceipt, ethTxToMaticTx } from "../utils";
 
-type ETHER_PROVIDER = providers.JsonRpcProvider;
-type ETHER_SIGNER = providers.JsonRpcSigner;
+type ETHER_PROVIDER = JsonRpcProvider;
+type ETHER_SIGNER = JsonRpcSigner;
+type WEB3_PROVIDER = BrowserProvider;
 
 export class EtherWeb3Client extends BaseWeb3Client {
     name = 'ETHER';
-    provider: ETHER_PROVIDER;
+    provider: ETHER_PROVIDER | WEB3_PROVIDER;
     signer: ETHER_SIGNER;
 
     constructor(provider: ETHER_PROVIDER | Wallet, logger) {
         super(logger);
-        if ((provider as ETHER_PROVIDER)._isProvider) {
-            this.provider = provider as ETHER_PROVIDER;
-            this.signer = this.provider.getSigner();
-            if (!this.signer || !this.signer._address) {
-                this.signer = (provider as any);
-            }
-        }
-        else {
-            this.signer = (provider as any);
-            this.provider = ((provider as Wallet).provider) as any;
+
+        if (provider instanceof BrowserProvider) {
+            this.provider = provider;
+            provider.getSigner().then((signer) => {
+                this.signer = signer;
+            });
+        } else if (provider instanceof JsonRpcProvider) {
+            this.provider = provider;
+            this.signer = provider as any;
+        } else {
+            this.signer = provider as any;
+            this.provider = provider.provider || provider as any;
         }
     }
 
@@ -40,12 +53,14 @@ export class EtherWeb3Client extends BaseWeb3Client {
         const provider = this.provider;
         return provider.send(
             'eth_getBlockByNumber',
-            [utils.hexValue(blockHashOrBlockNumber), true]
+            [ethers.toQuantity(blockHashOrBlockNumber), true]
         ).then(rawBlock => {
-            const block = provider.formatter.blockWithTransactions(rawBlock);
-            block['stateRoot'] = provider.formatter.hash(rawBlock.stateRoot);
-            block['transactionsRoot'] = provider.formatter.hash(rawBlock.transactionsRoot);
-            block['receiptsRoot'] = provider.formatter.hash(rawBlock.receiptsRoot);
+            const block = {
+                ...rawBlock,
+                stateRoot: ethers.zeroPadValue(rawBlock.stateRoot, 32),
+                transactionsRoot: ethers.zeroPadValue(rawBlock.transactionsRoot, 32),
+                receiptsRoot: ethers.zeroPadValue(rawBlock.receiptsRoot, 32),
+            };
 
             block.transactions = block.transactions.map(tx => {
                 return ethTxToMaticTx(tx as any);
@@ -57,7 +72,9 @@ export class EtherWeb3Client extends BaseWeb3Client {
 
 
     getChainId() {
-        return this.signer.getChainId();
+        return this.signer.provider.getNetwork().then(network => {
+            return new BigNumber(network.chainId.toString()).toNumber();
+        });
     }
 
     getBalance(address) {
@@ -102,8 +119,8 @@ export class EtherWeb3Client extends BaseWeb3Client {
     }
 
     getGasPrice() {
-        return this.provider.getGasPrice().then(result => {
-            return result.toString();
+        return this.provider.getFeeData().then(result => {
+            return result.gasPrice.toString();
         });
     }
 
@@ -111,17 +128,17 @@ export class EtherWeb3Client extends BaseWeb3Client {
         return this.provider.estimateGas(
             this.toEthTxConfig_(config)
         ).then(value => {
-            return value.toNumber();
+            return new BigNumber(value.toString()).toNumber();
         });
     }
 
     encodeParameters(params: any[], types: any[]) {
-        return utils.defaultAbiCoder.encode(types, params);
+        return AbiCoder.defaultAbiCoder().encode(types, params);
     }
 
     toHex(value, returnType) {
 
-        if (utils.isAddress(value)) {
+        if (ethers.isAddress(value)) {
             return returnType ? 'address' : '0x' + value.toLowerCase().replace(/^0x/i, '');
         }
 
@@ -134,29 +151,29 @@ export class EtherWeb3Client extends BaseWeb3Client {
         }
 
         if (typeof value === 'object' && !!value && !BigNumber.isBigNumber(value)) {
-            return returnType ? 'string' : utils.hexlify(JSON.stringify(value));
+            return returnType ? 'string' : ethers.toBeHex(JSON.stringify(value));
         }
 
         // if its a negative number, pass it through numberToHex
         if (typeof value === 'string') {
             if (value.indexOf('-0x') === 0 || value.indexOf('-0X') === 0) {
-                return returnType ? 'int256' : utils.hexlify(value);
+                return returnType ? 'int256' : ethers.toBeHex(value);
             } else if (value.indexOf('0x') === 0 || value.indexOf('0X') === 0) {
                 return returnType ? 'bytes' : value;
             } else if (!isFinite(value as any)) {
-                return returnType ? 'string' : utils.hexlify(value);
+                return returnType ? 'string' : ethers.toBeHex(value);
             }
         }
 
-        return returnType ? (value < 0 ? 'int256' : 'uint256') : utils.hexlify(value);
+        return returnType ? (value < 0 ? 'int256' : 'uint256') : ethers.toBeHex(value);
     }
 
     hexToNumber(value) {
-        return BigNumber.from(value).toNumber();
+        return new BigNumber(value).toNumber();
     }
 
     hexToNumberString(value) {
-        return BigNumber.from(value).toString();
+        return new BigNumber(value).toString();
     }
 
     signTypedData(signer, typedData) {
@@ -164,14 +181,14 @@ export class EtherWeb3Client extends BaseWeb3Client {
         if (types.EIP712Domain) {
             delete types.EIP712Domain;
         }
-        return this.signer._signTypedData(domain, types, value);
+        return this.signer.signTypedData(domain, types, value);
     }
 
     etheriumSha3(...value) {
         const types = value.map(val => {
             return this.toHex(val, true);
         });
-        return utils.solidityKeccak256(types, value);
+        return ethers.solidityPackedKeccak256(types, value);
     }
 
     sendRPCRequest(request: IJsonRpcRequestPayload) {
@@ -236,7 +253,7 @@ export class EtherWeb3Client extends BaseWeb3Client {
     }
 
     decodeParameters(hexString, types: any[]) {
-        return utils.defaultAbiCoder.decode(types, hexString) as any;
+        return AbiCoder.defaultAbiCoder().decode(types, hexString) as any;
     }
 
 }

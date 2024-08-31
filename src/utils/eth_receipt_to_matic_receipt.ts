@@ -1,12 +1,11 @@
 import { ITransactionReceipt } from "@maticnetwork/maticjs";
-import { providers } from "ethers";
+import { TransactionReceipt } from "ethers";
+import BigNumber from "bignumber.js";
 
-export const ethReceiptToMaticReceipt = (receipt: providers.TransactionReceipt) => {
-
+export const ethReceiptToMaticReceipt = (receipt: TransactionReceipt) => {
     const maticReceipt: ITransactionReceipt = receipt as any;
-
-    maticReceipt.gasUsed = receipt.gasUsed.toNumber();
-    maticReceipt.cumulativeGasUsed = receipt.cumulativeGasUsed.toNumber();
+    maticReceipt.gasUsed = new BigNumber(receipt.gasUsed.toString()).toNumber();
+    maticReceipt.cumulativeGasUsed = new BigNumber(receipt.cumulativeGasUsed.toString()).toNumber();
 
     return maticReceipt;
 };
